@@ -35,24 +35,45 @@ const coupleIllustrationUrl = new URL('./assets/images/couple_illustration_17802
 const potentialImagePaths = [
   '/couple_photo.jpg',
   '/couple_photo.JPG',
-  '/couple photo.jpg',
+  '/couple_photo.jpeg',
+  '/couple_photo.JPEG',
+  '/couple_photo.png',
+  '/couple_photo.PNG',
+  
   '/couple%20photo.jpg',
-  '/couple photo.jpeg',
-  '/couple%20photo.jpeg',
-  '/couple photo.JPG',
   '/couple%20photo.JPG',
-  '/couple photo.JPEG',
+  '/couple%20photo.jpeg',
   '/couple%20photo.JPEG',
+  '/couple%20photo.png',
+  '/couple%20photo.PNG',
+
+  '/couple photo.jpg',
+  '/couple photo.JPG',
+  '/couple photo.jpeg',
+  '/couple photo.JPEG',
+  '/couple photo.png',
+  '/couple photo.PNG',
+
   '/couplephoto.jpg',
   '/couplephoto.JPG',
   '/couplephoto.jpeg',
-  '/couple_photo.jpeg',
-  '/couplephoto.png',
-  '/couple_photo.png',
-  '/couple photo.png',
-  '/couple%20photo.png',
   '/couplephoto.JPEG',
-  '/couple_photo.JPEG'
+  '/couplephoto.png',
+  '/couplephoto.PNG',
+
+  '/Couple_Photo.jpg',
+  '/Couple_Photo.JPG',
+  '/Couple_Photo.jpeg',
+  '/Couple_Photo.JPEG',
+  '/Couple_Photo.png',
+  '/Couple_Photo.PNG',
+
+  '/COUPLE_PHOTO.jpg',
+  '/COUPLE_PHOTO.JPG',
+  '/COUPLE_PHOTO.jpeg',
+  '/COUPLE_PHOTO.JPEG',
+  '/COUPLE_PHOTO.png',
+  '/COUPLE_PHOTO.PNG'
 ];
 
 export default function App() {
@@ -60,17 +81,19 @@ export default function App() {
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [rsvpsUpdatedTrigger, setRsvpsUpdatedTrigger] = useState(0);
-  const [imageLoadFailed, setImageLoadFailed] = useState(false);
   const [imageSrc, setImageSrc] = useState(potentialImagePaths[0]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Use a mutable ref to safely and synchronously track current index across fast-firing errors
+  const imageIndexRef = useRef(0);
 
   const handleImageError = () => {
-    if (currentImageIndex < potentialImagePaths.length - 1) {
-      const nextIndex = currentImageIndex + 1;
-      setCurrentImageIndex(nextIndex);
-      setImageSrc(potentialImagePaths[nextIndex]);
+    if (imageIndexRef.current < potentialImagePaths.length - 1) {
+      imageIndexRef.current += 1;
+      const nextPath = potentialImagePaths[imageIndexRef.current];
+      setImageSrc(nextPath);
     } else {
-      setImageSrc(coupleIllustrationUrl);
+      // Fallback to wedding emblem to avoid broken images showing up
+      setImageSrc(weddingEmblemImage);
     }
   };
 

@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Check, Send, Users, MessageSquare } from 'lucide-react';
 import { RSVP } from '../types';
+import { addRSVP } from '../dbService';
 
 interface RSVPModalProps {
   isOpen: boolean;
@@ -30,58 +31,13 @@ export default function RSVPModal({ isOpen, onClose, onSuccessSubmit }: RSVPModa
     setIsSubmitting(true);
 
     try {
-      // 1. Try sending to the Express/Node backend API
-      const response = await fetch('/api/rsvps', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          attendance,
-          guests: attendance === 'yes' ? guests : 0,
-          message: message.trim(),
-        }),
-      });
-
-      if (response.ok) {
-        const savedRSVP = await response.json();
-        
-        // Also save to localStorage of current browser for quick frontend accessibility
-        const rawRSVPs = localStorage.getItem('ketrolin_joyal_rsvps_v3');
-        const currentRSVPs: RSVP[] = rawRSVPs ? JSON.parse(rawRSVPs) : [];
-        // Prevent duplicate local additions if already fetched
-        if (!currentRSVPs.some(item => item.id === savedRSVP.id)) {
-          currentRSVPs.unshift(savedRSVP);
-          localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(currentRSVPs));
-        }
-        
-        setIsSubmitting(false);
-        setIsSuccess(true);
-        onSuccessSubmit?.(savedRSVP);
-      } else {
-        throw new Error('API server responded with error');
-      }
-    } catch (err) {
-      console.warn('Backend connection failed, falling back to local file storage:', err);
-      // Fallback local storage
-      const newRSVP: RSVP = {
-        id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15),
-        name: name.trim(),
-        attendance,
-        guests: attendance === 'yes' ? guests : 0,
-        message: message.trim(),
-        createdAt: new Date().toISOString(),
-      };
-
-      const rawRSVPs = localStorage.getItem('ketrolin_joyal_rsvps_v3');
-      const currentRSVPs: RSVP[] = rawRSVPs ? JSON.parse(rawRSVPs) : [];
-      currentRSVPs.unshift(newRSVP);
-      localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(currentRSVPs));
-
+      const savedRSVP = await addRSVP(name, attendance, guests, message);
       setIsSubmitting(false);
       setIsSuccess(true);
-      onSuccessSubmit?.(newRSVP);
+      onSuccessSubmit?.(savedRSVP);
+    } catch (err) {
+      console.error('RSVP submit error:', err);
+      setIsSubmitting(false);
     }
 
     // Auto-close success message after 2.5 seconds

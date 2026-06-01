@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react';
 import { Heart, Smile, Sparkles, MessageSquare, Plus, Trash2 } from 'lucide-react';
 import { RSVP } from '../types';
+import { getRSVPs, deleteRSVP } from '../dbService';
 
 interface GuestbookProps {
   rsvpsUpdatedTrigger?: number;
@@ -20,26 +21,11 @@ export default function Guestbook({ rsvpsUpdatedTrigger, onOpenRSVPRequest }: Gu
 
   const loadBlessings = async () => {
     try {
-      const response = await fetch('/api/rsvps');
-      if (response.ok) {
-        const data = await response.json();
-        setBlessings(data);
-        // Sync back to localStorage for seamless offline accessibility
-        localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(data));
-      } else {
-        throw new Error('Could not fetch from server API');
-      }
+      const data = await getRSVPs();
+      setBlessings(data);
     } catch (e) {
-      console.warn('Backend unavailable, showing locally cached blessings:', e);
-      // Fallback local storage
-      const rawRSVPs = localStorage.getItem('ketrolin_joyal_rsvps_v3');
-      if (rawRSVPs) {
-        const parsed = JSON.parse(rawRSVPs) as RSVP[];
-        setBlessings(parsed);
-      } else {
-        setBlessings(defaultBlessings);
-        localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(defaultBlessings));
-      }
+      console.warn('Could not load blessings:', e);
+      setBlessings(defaultBlessings);
     }
   };
 
@@ -51,14 +37,11 @@ export default function Guestbook({ rsvpsUpdatedTrigger, onOpenRSVPRequest }: Gu
     // Delete locally first for responsive feel
     const filtered = blessings.filter(b => b.id !== id);
     setBlessings(filtered);
-    localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(filtered));
-
+    
     try {
-      await fetch(`/api/rsvps/${id}`, {
-        method: 'DELETE'
-      });
+      await deleteRSVP(id);
     } catch (e) {
-      console.warn('Backend RSVP deletion failed, deleted locally only:', e);
+      console.warn('Backend/Cloud RSVP deletion failed:', e);
     }
   };
 
