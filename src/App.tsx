@@ -32,12 +32,37 @@ import csiChurchImage from './assets/images/csi_church_1780229072269.png';
 // Handle image path dynamically to avoid build crashes when file is missing
 const coupleIllustrationUrl = new URL('./assets/images/couple_illustration_1780231679870.png', import.meta.url).href;
 
+const potentialImagePaths = [
+  '/couple_photo.jpg',
+  '/couple_photo.JPG',
+  '/couplephoto.jpg',
+  '/couplephoto.JPG',
+  '/couplephoto.jpeg',
+  '/couple_photo.jpeg',
+  '/couplephoto.png',
+  '/couple_photo.png',
+  '/couplephoto.JPEG',
+  '/couple_photo.JPEG'
+];
+
 export default function App() {
   const [isRSVPModalOpen, setIsRSVPModalOpen] = useState(false);
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [rsvpsUpdatedTrigger, setRsvpsUpdatedTrigger] = useState(0);
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
+  const [imageSrc, setImageSrc] = useState(potentialImagePaths[0]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const handleImageError = () => {
+    if (currentImageIndex < potentialImagePaths.length - 1) {
+      const nextIndex = currentImageIndex + 1;
+      setCurrentImageIndex(nextIndex);
+      setImageSrc(potentialImagePaths[nextIndex]);
+    } else {
+      setImageSrc(coupleIllustrationUrl);
+    }
+  };
 
   // Audio stream reference - royalty-free soft ambient wedding instrumental
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -79,13 +104,50 @@ export default function App() {
 
   // Audio setup
   useEffect(() => {
-    // Elegant soft romantic piano instrumental theme (Served locally for same-origin and 206 Partial Content range request support)
-    const audio = new Audio('/wed.mp3');
-    audio.loop = true;
-    audio.volume = 0.35; // Fine-tuned ambient volume
-    audioRef.current = audio;
-
+    const audioPaths = [
+      '/wed.mp3',
+      '/web.mp3',
+      '/wed.MP3',
+      '/web.MP3',
+      '/wed.wav',
+      '/web.wav'
+    ];
+    let currentAudioIndex = 0;
     let hasInteracted = false;
+
+    const createAndSetupAudio = (index: number): HTMLAudioElement => {
+      const audioObj = new Audio(audioPaths[index]);
+      audioObj.loop = true;
+      audioObj.volume = 0.35;
+      audioObj.addEventListener('error', handleAudioLoadingError);
+      return audioObj;
+    };
+
+    const handleAudioLoadingError = () => {
+      console.log(`Audio path failed to load: ${audioPaths[currentAudioIndex]}`);
+      if (currentAudioIndex < audioPaths.length - 1) {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.removeEventListener('error', handleAudioLoadingError);
+        }
+        currentAudioIndex++;
+        console.log(`Trying fallback audio path: ${audioPaths[currentAudioIndex]}`);
+        
+        const nextAudio = createAndSetupAudio(currentAudioIndex);
+        audioRef.current = nextAudio;
+        
+        if (hasInteracted) {
+          nextAudio.play().then(() => {
+            setIsPlayingMusic(true);
+          }).catch(err => {
+            console.log('Failed fallback auto-play retry:', err);
+          });
+        }
+      }
+    };
+
+    audioRef.current = createAndSetupAudio(currentAudioIndex);
+
     const handleFirstInteraction = () => {
       if (!hasInteracted && audioRef.current) {
         hasInteracted = true;
@@ -110,6 +172,7 @@ export default function App() {
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.removeEventListener('error', handleAudioLoadingError);
         audioRef.current = null;
       }
       document.removeEventListener('click', handleFirstInteraction);
@@ -371,14 +434,11 @@ export default function App() {
             {/* Couple Real Photograph */}
             <div className="w-64 h-80 sm:w-72 sm:h-[380px] mx-auto my-3 border-2 border-[#D4AF37]/50 rounded-2xl bg-white p-2.5 shadow-lg overflow-hidden transform hover:scale-[1.02] transition-all duration-300">
               <img 
-                src="/couple_photo.jpg" 
+                src={imageSrc} 
                 alt="Ketrolin Sharon & Joyal Christo" 
                 className="w-full h-full object-cover rounded-xl shadow-inner"
                 referrerPolicy="no-referrer"
-                onError={(e) => {
-                  // Fallback to illustration if loaded dynamically
-                  (e.target as HTMLImageElement).src = coupleIllustrationUrl;
-                }}
+                onError={handleImageError}
               />
             </div>
 
