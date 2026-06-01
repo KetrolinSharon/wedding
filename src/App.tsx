@@ -33,7 +33,7 @@ import csiChurchImage from './assets/images/csi_church_1780229072269.png';
 const coupleIllustrationUrl = new URL('./assets/images/couple_illustration_1780231679870.png', import.meta.url).href;
 
 const potentialImagePaths = [
-  '/couplephoto.jpeg',
+  '/couple_photo.jpg',
   '/couple_photo.JPG',
   '/couple_photo.jpeg',
   '/couple_photo.JPEG',
