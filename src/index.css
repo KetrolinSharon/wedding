@@ -1,0 +1,192 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-script: 'Great Vibes', cursive;
+  --font-sans: 'Montserrat', sans-serif;
+
+  --color-primary: #B76E79;      /* Rose Gold Accent */
+  --color-gold: #D4AF37;         /* Metallic Gold */
+  --color-gold-light: #F7E7CE;   /* Champagne Gold background */
+  --color-ivory: #FDFBF7;        /* Soft Ivory Cards */
+  --color-beige: #E8DDD4;        /* Warm Beige Overlays */
+  --color-pearl: #FFF9F4;        /* Pearl White Envelope */
+  --color-charcoal: #2E2528;     /* Rich Rose-Charcoal for readability */
+}
+
+/* Luxurious Champagne Gold Textured Background with subtle marble detailing */
+.champagne-luxury-bg {
+  background-color: #F7E7CE;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(253, 251, 247, 0.4) 0%, rgba(247, 231, 206, 0.2) 50%, rgba(232, 221, 212, 0.4) 100%),
+    repeating-linear-gradient(45deg, rgba(183, 110, 121, 0.02) 0px, rgba(183, 110, 121, 0.02) 2px, transparent 2px, transparent 10px),
+    repeating-linear-gradient(-45deg, rgba(183, 110, 121, 0.02) 0px, rgba(183, 110, 121, 0.02) 2px, transparent 2px, transparent 10px);
+  background-attachment: fixed;
+}
+
+/* Rose Gold Metallic Text */
+.text-rose-gold {
+  background: linear-gradient(135deg, #B76E79 0%, #D4AF37 40%, #B76E79 70%, #FDFBF7 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: goldShine 6s linear infinite;
+}
+
+/* Luxurious Shimmer Overlay */
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-effect::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 30%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 30%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  animation: shimmerLight 8s infinite linear;
+  pointer-events: none;
+}
+
+/* Hand-painted watercolor roses frame background */
+.watercolor-roses-panel {
+  position: relative;
+  background-color: #FDFBF7;
+}
+
+/* Subtle watercolor circular roses accent using multiple radial gradients */
+.watercolor-roses-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background-image: 
+    radial-gradient(circle at 10% 10%, #B76E79 0%, transparent 40%),
+    radial-gradient(circle at 90% 10%, #B76E79 0%, transparent 40%),
+    radial-gradient(circle at 10% 90%, #B76E79 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, #B76E79 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Sophisticated Ornate Border Frame with corner flourishes */
+.ornate-border-frame {
+  position: relative;
+  border: 1px solid rgba(183, 110, 121, 0.45);
+  box-shadow: inset 0 0 0 6px rgba(247, 231, 206, 0.5), inset 0 0 0 10px rgba(183, 110, 121, 0.2);
+}
+
+.ornate-border-frame::before {
+  content: '✦';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 10px;
+  color: #B76E79;
+}
+
+.ornate-border-frame::after {
+  content: '✦';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 10px;
+  color: #B76E79;
+}
+
+@keyframes shimmerLight {
+  0% {
+    left: -150%;
+  }
+  50% {
+    left: 150%;
+  }
+  100% {
+    left: 150%;
+  }
+}
+
+@keyframes goldShine {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-gold-metallic {
+  background: linear-gradient(135deg, #B76E79 0%, #F7E7CE 30%, #E8DDD4 50%, #F7E7CE 70%, #B76E79 100%);
+  background-size: 200% auto;
+  animation: goldShine 6s linear infinite;
+}
+
+/* Custom scrollbar to keep it looking luxurious */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7E7CE;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #B76E79;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9d5661;
+}
+
+/* Paper shadow */
+.luxury-card-shadow {
+  box-shadow: 0 12px 45px -10px rgba(183, 110, 121, 0.18), 0 2px 5px rgba(183, 110, 121, 0.05);
+}
+
+.envelope-shadow {
+  box-shadow: 0 25px 60px -15px rgba(46, 37, 40, 0.22);
+}
+
+/* Custom Scale Up & Fade in Animations */
+@keyframes scaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+

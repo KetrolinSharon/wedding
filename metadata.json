@@ -1,0 +1,6 @@
+{
+  "name": "Ketrolin & Joyal's Wedding Invitation",
+  "description": "An elegant, interactive wedding invitation website featuring a custom rose gold and champagne gold aesthetic, and a scratch-to-reveal wedding date.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
