@@ -23,16 +23,50 @@ export default function RSVPModal({ isOpen, onClose, onSuccessSubmit }: RSVPModa
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
     setIsSubmitting(true);
 
-    // Simulate an elegant submit latency
-    setTimeout(() => {
+    try {
+      // 1. Try sending to the Express/Node backend API
+      const response = await fetch('/api/rsvps', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          attendance,
+          guests: attendance === 'yes' ? guests : 0,
+          message: message.trim(),
+        }),
+      });
+
+      if (response.ok) {
+        const savedRSVP = await response.json();
+        
+        // Also save to localStorage of current browser for quick frontend accessibility
+        const rawRSVPs = localStorage.getItem('ketrolin_joyal_rsvps_v3');
+        const currentRSVPs: RSVP[] = rawRSVPs ? JSON.parse(rawRSVPs) : [];
+        // Prevent duplicate local additions if already fetched
+        if (!currentRSVPs.some(item => item.id === savedRSVP.id)) {
+          currentRSVPs.unshift(savedRSVP);
+          localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(currentRSVPs));
+        }
+        
+        setIsSubmitting(false);
+        setIsSuccess(true);
+        onSuccessSubmit?.(savedRSVP);
+      } else {
+        throw new Error('API server responded with error');
+      }
+    } catch (err) {
+      console.warn('Backend connection failed, falling back to local file storage:', err);
+      // Fallback local storage
       const newRSVP: RSVP = {
-        id: crypto.randomUUID(),
+        id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15),
         name: name.trim(),
         attendance,
         guests: attendance === 'yes' ? guests : 0,
@@ -40,27 +74,26 @@ export default function RSVPModal({ isOpen, onClose, onSuccessSubmit }: RSVPModa
         createdAt: new Date().toISOString(),
       };
 
-      // Retrieve existing RSVPs and push
       const rawRSVPs = localStorage.getItem('ketrolin_joyal_rsvps_v3');
       const currentRSVPs: RSVP[] = rawRSVPs ? JSON.parse(rawRSVPs) : [];
-      currentRSVPs.unshift(newRSVP); // Prepend new blessings
+      currentRSVPs.unshift(newRSVP);
       localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(currentRSVPs));
 
       setIsSubmitting(false);
       setIsSuccess(true);
       onSuccessSubmit?.(newRSVP);
+    }
 
-      // Auto-close success message after 2.5 seconds
-      setTimeout(() => {
-        setIsSuccess(false);
-        // Clear fields
-        setName('');
-        setAttendance('yes');
-        setGuests(1);
-        setMessage('');
-        onClose();
-      }, 2500);
-    }, 1200);
+    // Auto-close success message after 2.5 seconds
+    setTimeout(() => {
+      setIsSuccess(false);
+      // Clear fields
+      setName('');
+      setAttendance('yes');
+      setGuests(1);
+      setMessage('');
+      onClose();
+    }, 2500);
   };
 
   return (

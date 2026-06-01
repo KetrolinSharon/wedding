@@ -26,6 +26,10 @@ const copyAssetsPlugin = () => {
         'couplephoto.jpeg',
         'couplephoto.jpg',
         'couplephoto.JPG',
+        'couple photo.jpg',
+        'couple photo.JPG',
+        'couple photo.jpeg',
+        'couple photo.png',
         'coupleimg',
         'photo'
       ];

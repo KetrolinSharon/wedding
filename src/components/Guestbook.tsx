@@ -18,15 +18,28 @@ export default function Guestbook({ rsvpsUpdatedTrigger, onOpenRSVPRequest }: Gu
   // Seed default beautiful blessings if empty
   const defaultBlessings: RSVP[] = [];
 
-  const loadBlessings = () => {
-    const rawRSVPs = localStorage.getItem('ketrolin_joyal_rsvps_v3');
-    if (rawRSVPs) {
-      const parsed = JSON.parse(rawRSVPs) as RSVP[];
-      // Keep structural integrity of both default and custom ones
-      setBlessings(parsed);
-    } else {
-      setBlessings(defaultBlessings);
-      localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(defaultBlessings));
+  const loadBlessings = async () => {
+    try {
+      const response = await fetch('/api/rsvps');
+      if (response.ok) {
+        const data = await response.json();
+        setBlessings(data);
+        // Sync back to localStorage for seamless offline accessibility
+        localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(data));
+      } else {
+        throw new Error('Could not fetch from server API');
+      }
+    } catch (e) {
+      console.warn('Backend unavailable, showing locally cached blessings:', e);
+      // Fallback local storage
+      const rawRSVPs = localStorage.getItem('ketrolin_joyal_rsvps_v3');
+      if (rawRSVPs) {
+        const parsed = JSON.parse(rawRSVPs) as RSVP[];
+        setBlessings(parsed);
+      } else {
+        setBlessings(defaultBlessings);
+        localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(defaultBlessings));
+      }
     }
   };
 
@@ -34,10 +47,19 @@ export default function Guestbook({ rsvpsUpdatedTrigger, onOpenRSVPRequest }: Gu
     loadBlessings();
   }, [rsvpsUpdatedTrigger]);
 
-  const handleDeleteBlessing = (id: string) => {
+  const handleDeleteBlessing = async (id: string) => {
+    // Delete locally first for responsive feel
     const filtered = blessings.filter(b => b.id !== id);
     setBlessings(filtered);
     localStorage.setItem('ketrolin_joyal_rsvps_v3', JSON.stringify(filtered));
+
+    try {
+      await fetch(`/api/rsvps/${id}`, {
+        method: 'DELETE'
+      });
+    } catch (e) {
+      console.warn('Backend RSVP deletion failed, deleted locally only:', e);
+    }
   };
 
   return (

@@ -35,12 +35,22 @@ const coupleIllustrationUrl = new URL('./assets/images/couple_illustration_17802
 const potentialImagePaths = [
   '/couple_photo.jpg',
   '/couple_photo.JPG',
+  '/couple photo.jpg',
+  '/couple%20photo.jpg',
+  '/couple photo.jpeg',
+  '/couple%20photo.jpeg',
+  '/couple photo.JPG',
+  '/couple%20photo.JPG',
+  '/couple photo.JPEG',
+  '/couple%20photo.JPEG',
   '/couplephoto.jpg',
   '/couplephoto.JPG',
   '/couplephoto.jpeg',
   '/couple_photo.jpeg',
   '/couplephoto.png',
   '/couple_photo.png',
+  '/couple photo.png',
+  '/couple%20photo.png',
   '/couplephoto.JPEG',
   '/couple_photo.JPEG'
 ];
