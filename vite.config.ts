@@ -43,7 +43,7 @@ const copyAssetsPlugin = () => {
         'web.wav'
       ];
 
-      // Copy any image from root or public folder directly to dist/couple_photo.jpg
+      // Copy any image from root or public folder directly to dist/couple_photo.jpg and dist/couplephoto.jpeg
       let imageCopied = false;
       // 1. Try public path first
       if (fs.existsSync(publicDir)) {
@@ -52,7 +52,8 @@ const copyAssetsPlugin = () => {
           if (fs.existsSync(publicPath)) {
             try {
               fs.copyFileSync(publicPath, path.join(distDir, 'couple_photo.jpg'));
-              console.log(`[Plugin] Copied ${name} from public to dist/couple_photo.jpg`);
+              fs.copyFileSync(publicPath, path.join(distDir, 'couplephoto.jpeg'));
+              console.log(`[Plugin] Copied ${name} from public to both dist/couple_photo.jpg and dist/couplephoto.jpeg`);
               imageCopied = true;
               break;
             } catch (e) {
@@ -68,7 +69,8 @@ const copyAssetsPlugin = () => {
           if (fs.existsSync(rootPath) && fs.statSync(rootPath).isFile()) {
             try {
               fs.copyFileSync(rootPath, path.join(distDir, 'couple_photo.jpg'));
-              console.log(`[Plugin] Copied ${name} from root to dist/couple_photo.jpg`);
+              fs.copyFileSync(rootPath, path.join(distDir, 'couplephoto.jpeg'));
+              console.log(`[Plugin] Copied ${name} from root to both dist/couple_photo.jpg and dist/couplephoto.jpeg`);
               imageCopied = true;
               break;
             } catch (e) {
