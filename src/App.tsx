@@ -80,7 +80,7 @@ const potentialImagePaths = [
 export default function App() {
   const [isRSVPModalOpen, setIsRSVPModalOpen] = useState(false);
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
-  const [isPlayingMusic, setIsPlayingMusic] = useState(true); // Default to ON
+  const [isPlayingMusic, setIsPlayingMusic] = useState(false); // Start as false, wait for successful play
   const [rsvpsUpdatedTrigger, setRsvpsUpdatedTrigger] = useState(0);
   const [imageSrc, setImageSrc] = useState(potentialImagePaths[0]);
   
@@ -190,31 +190,29 @@ export default function App() {
       setIsPlayingMusic(true);
       hasInteracted = true;
     }).catch(err => {
-      console.log('Autoplay play blocked on load, waiting for interaction...', err);
+      console.log('Autoplay play blocked on load, waiting for user interaction...', err);
+      setIsPlayingMusic(false);
     });
 
     const handleFirstInteraction = () => {
       if (!hasInteracted && audioRef.current) {
-        hasInteracted = true;
         if (userWantsMusicRef.current) {
           audioRef.current.play().then(() => {
             setIsPlayingMusic(true);
+            hasInteracted = true;
+            // Remove event listeners immediately on successful play
+            document.removeEventListener('click', handleFirstInteraction);
+            document.removeEventListener('touchstart', handleFirstInteraction);
           }).catch(err => {
-            console.log('Autoplay play prevented initially', err);
+            console.log('Autoplay play prevented on first interaction', err);
           });
         }
-
-        // Remove event listeners immediately
-        document.removeEventListener('click', handleFirstInteraction);
-        document.removeEventListener('touchstart', handleFirstInteraction);
-        document.removeEventListener('scroll', handleFirstInteraction);
       }
     };
 
     // Auto-engage music smoothly when they start reading the invitation
     document.addEventListener('click', handleFirstInteraction);
     document.addEventListener('touchstart', handleFirstInteraction);
-    document.addEventListener('scroll', handleFirstInteraction);
 
     return () => {
       if (audioRef.current) {
@@ -224,7 +222,6 @@ export default function App() {
       }
       document.removeEventListener('click', handleFirstInteraction);
       document.removeEventListener('touchstart', handleFirstInteraction);
-      document.removeEventListener('scroll', handleFirstInteraction);
     };
   }, []);
 
