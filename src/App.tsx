@@ -80,10 +80,13 @@ const potentialImagePaths = [
 export default function App() {
   const [isRSVPModalOpen, setIsRSVPModalOpen] = useState(false);
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
-  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+  const [isPlayingMusic, setIsPlayingMusic] = useState(true); // Default to ON
   const [rsvpsUpdatedTrigger, setRsvpsUpdatedTrigger] = useState(0);
   const [imageSrc, setImageSrc] = useState(potentialImagePaths[0]);
   
+  // Track manual mute choice to respect user preference
+  const userWantsMusicRef = useRef(true);
+
   // Use a mutable ref to safely and synchronously track current index across fast-firing errors
   const imageIndexRef = useRef(0);
 
@@ -170,7 +173,7 @@ export default function App() {
         const nextAudio = createAndSetupAudio(currentAudioIndex);
         audioRef.current = nextAudio;
         
-        if (hasInteracted) {
+        if (userWantsMusicRef.current) {
           nextAudio.play().then(() => {
             setIsPlayingMusic(true);
           }).catch(err => {
@@ -182,14 +185,24 @@ export default function App() {
 
     audioRef.current = createAndSetupAudio(currentAudioIndex);
 
+    // Try starting audio playing by default immediately on mount
+    audioRef.current.play().then(() => {
+      setIsPlayingMusic(true);
+      hasInteracted = true;
+    }).catch(err => {
+      console.log('Autoplay play blocked on load, waiting for interaction...', err);
+    });
+
     const handleFirstInteraction = () => {
       if (!hasInteracted && audioRef.current) {
         hasInteracted = true;
-        audioRef.current.play().then(() => {
-          setIsPlayingMusic(true);
-        }).catch(err => {
-          console.log('Autoplay play prevented initially', err);
-        });
+        if (userWantsMusicRef.current) {
+          audioRef.current.play().then(() => {
+            setIsPlayingMusic(true);
+          }).catch(err => {
+            console.log('Autoplay play prevented initially', err);
+          });
+        }
 
         // Remove event listeners immediately
         document.removeEventListener('click', handleFirstInteraction);
@@ -220,7 +233,9 @@ export default function App() {
     if (isPlayingMusic) {
       audioRef.current.pause();
       setIsPlayingMusic(false);
+      userWantsMusicRef.current = false;
     } else {
+      userWantsMusicRef.current = true;
       audioRef.current.play().then(() => {
         setIsPlayingMusic(true);
       }).catch(err => {
@@ -371,7 +386,7 @@ export default function App() {
 
           <Envelope onOpenStateChange={(isOpen) => {
             setIsEnvelopeOpen(isOpen);
-            if (isOpen && audioRef.current && !isPlayingMusic) {
+            if (isOpen && audioRef.current && userWantsMusicRef.current) {
               audioRef.current.play().then(() => {
                 setIsPlayingMusic(true);
               }).catch((err) => {
