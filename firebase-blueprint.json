@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "RSVP": {
+      "title": "RSVP",
+      "description": "Wedding RSVP and well-wishes message",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the RSVP"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the guest/s"
+        },
+        "attendance": {
+          "type": "string",
+          "enum": [
+            "yes",
+            "no",
+            "maybe"
+          ],
+          "description": "Attendance status"
+        },
+        "guests": {
+          "type": "number",
+          "description": "Number of guests attending"
+        },
+        "message": {
+          "type": "string",
+          "description": "Well wishes or blessing text"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time the RSVP was created"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "attendance",
+        "guests",
+        "message",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/rsvps/{rsvpId}": {
+      "schema": "RSVP",
+      "description": "Collection of RSVPs and blessings submitted by guests"
+    }
+  }
+}
